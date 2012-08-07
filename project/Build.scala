@@ -15,7 +15,7 @@ object Build extends sbt.Build {
 		libraryDependencies ++=
 			compile(akkaActor, quartz) ++
 				test(specs2, akkaTestkit) ++
-				runtime()
+				runtime(slf4j, logback)
 	)
 }
 

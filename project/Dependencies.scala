@@ -22,5 +22,7 @@ object Dependencies {
 	val akkaActor   = "com.typesafe.akka" % "akka-actor"       % V.akka
 	val akkaTestkit = "com.typesafe.akka" % "akka-testkit"     % V.akka
 	val quartz		= "org.quartz-scheduler" % "quartz"		   % V.quartz
+	val logback     = "ch.qos.logback"    %  "logback-classic" % "1.0.0"
+  	val slf4j       = "org.slf4j"         %  "slf4j-api"       % "1.6.4"
 
 }
