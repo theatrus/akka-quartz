@@ -8,7 +8,7 @@ import org.quartz._
 import utils.Key
 
 
-case class AddCronSchedule(to: ActorRef, cron: String, message: Any, reply: Boolean)
+case class AddCronSchedule(to: ActorRef, cron: String, message: Any, reply: Boolean = false)
 case class AddCronScheduleResult(cancel: Cancellable)
 case class RemoveJob(cancel: Cancellable)
 
