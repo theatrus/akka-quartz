@@ -55,11 +55,17 @@ class QuartzActor$Test extends Specification  {
 		"add then cancel messages" in {
 			val d = ar ? AddCronSchedule(recv, "4 4 * * * ?", SpecActors.Tickle(), true)
 			val cancel = d.value.get match {
-				case Right(AddCronScheduleResult(cancel)) => cancel
+				case Right(AddCronScheduleSuccess(cancel)) => cancel
 			}
 			cancel.cancel()
 			Thread.sleep(100)
 			cancel.isCancelled must beEqualTo(true)
+		}
+
+		"fail with invalid cron expressions" in {
+			(ar ? AddCronSchedule(recv, "clearly invalid", SpecActors.Tickle(), true)).value.get must beLike {
+				case Right(AddCronScheduleFailure(e)) => ok
+			}
 		}
 	}
 

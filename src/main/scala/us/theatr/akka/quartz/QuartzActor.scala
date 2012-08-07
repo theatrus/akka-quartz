@@ -15,6 +15,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 import akka.actor.{Cancellable, ActorRef, Actor}
 import akka.event.Logging
 import org.quartz.impl.StdSchedulerFactory
@@ -24,7 +25,13 @@ import utils.Key
 
 
 case class AddCronSchedule(to: ActorRef, cron: String, message: Any, reply: Boolean = false)
-case class AddCronScheduleResult(cancel: Cancellable)
+
+trait AddCronScheduleResult
+
+case class AddCronScheduleSuccess(cancel: Cancellable) extends AddCronScheduleResult
+
+case class AddCronScheduleFailure(reason: Throwable) extends AddCronScheduleResult
+
 case class RemoveJob(cancel: Cancellable)
 
 private class QuartzIsNotScalaExecutor() extends Job {
@@ -44,10 +51,9 @@ class QuartzActor extends Actor {
 	props.setProperty("org.quartz.scheduler.instanceName", context.self.path.name)
 	props.setProperty("org.quartz.threadPool.threadCount", "1")
 	props.setProperty("org.quartz.jobStore.class", "org.quartz.simpl.RAMJobStore")
-	props.setProperty("org.quartz.scheduler.skipUpdateCheck", "true") // Whoever thought this was smart shall be shot
+	props.setProperty("org.quartz.scheduler.skipUpdateCheck", "true")	// Whoever thought this was smart shall be shot
 
 	val scheduler = new StdSchedulerFactory(props).getScheduler
-
 
 
 	/**
@@ -56,8 +62,12 @@ class QuartzActor extends Actor {
 	 */
 	class CancelSchedule(val job: JobKey, val trig: TriggerKey) extends Cancellable {
 		var cancelled = false
-		def isCancelled : Boolean = cancelled
-		def cancel() { context.self ! RemoveJob(this) }
+
+		def isCancelled: Boolean = cancelled
+
+		def cancel() {
+			context.self ! RemoveJob(this)
+		}
 
 	}
 
@@ -72,7 +82,7 @@ class QuartzActor extends Actor {
 
 	def receive = {
 		case RemoveJob(cancel) => cancel match {
-			case cs : CancelSchedule => scheduler.deleteJob(cs.job); cs.cancelled = true
+			case cs: CancelSchedule => scheduler.deleteJob(cs.job); cs.cancelled = true
 			case _ => log.error("Incorrect cancelable sent")
 		}
 		case AddCronSchedule(to, cron, message, reply) =>
@@ -86,14 +96,22 @@ class QuartzActor extends Actor {
 			jdm.put("actor", to)
 			val job = jd.usingJobData(jdm).withIdentity(jobkey).build()
 
-			val trigger = org.quartz.TriggerBuilder.newTrigger().startNow()
-				.withIdentity(trigkey).forJob(job)
-				.withSchedule(org.quartz.CronScheduleBuilder.cronSchedule(cron)).build()
+			try {
+				scheduler.scheduleJob(job, org.quartz.TriggerBuilder.newTrigger().startNow()
+					.withIdentity(trigkey).forJob(job)
+					.withSchedule(org.quartz.CronScheduleBuilder.cronSchedule(cron)).build())
 
-			scheduler.scheduleJob(job, trigger)
-			if (reply) {
-				context.sender ! AddCronScheduleResult(new CancelSchedule(jobkey, trigkey))
+				if (reply)
+					context.sender ! AddCronScheduleSuccess(new CancelSchedule(jobkey, trigkey))
+
+			} catch { // Quartz will drop a throwable if you give it an invalid cron expression - pass that info on
+				case e: Throwable =>
+					log.error("Quartz failed to add a task: ", e)
+					if (reply)
+						context.sender ! AddCronScheduleFailure(e)
+
 			}
+
 
 		case _ => //
 	}
