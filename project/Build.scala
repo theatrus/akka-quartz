@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object Build extends sbt.Build {
-  import Dependencies._
+	import Dependencies._
 
 	lazy val myProject = Project("akka-quartz", file("."))
 		.settings(
