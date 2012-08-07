@@ -32,11 +32,10 @@ class QuartzActor$Test extends Specification  {
 		}
 	}
 
-	"Adding a job" should {
+	"Basic single actors should" should {
 		implicit val system = ActorSystem("GAT")
 		val ar = TestActorRef(new QuartzActor)
 		val recv = TestActorRef(new SpecActors.RecvActor)
-
 		implicit val timeout = Timeout(Duration(5, "seconds"))
 		"add a cron job" in {
 
@@ -45,12 +44,22 @@ class QuartzActor$Test extends Specification  {
 				case Right(t : AddCronScheduleResult) => ok
 			}
 		}
-		"deliver messages" in {
+		"deliver messages on time" in {
 
 			Thread.sleep(10000)
 			(recv ? SpecActors.GetTickle()).value.get must beLike {
 				case Right(SpecActors.Tickle()) => ok
 			}
+		}
+
+		"add then cancel messages" in {
+			val d = ar ? AddCronSchedule(recv, "4 4 * * * ?", SpecActors.Tickle(), true)
+			val cancel = d.value.get match {
+				case Right(AddCronScheduleResult(cancel)) => cancel
+			}
+			cancel.cancel()
+			Thread.sleep(100)
+			cancel.isCancelled must beEqualTo(true)
 		}
 	}
 

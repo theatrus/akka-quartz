@@ -14,7 +14,6 @@ case class RemoveJob(cancel: Cancellable)
 
 private class QuartzIsNotScalaExecutor() extends Job {
 	def execute(ctx: JobExecutionContext) {
-		println("Executing handler")
 		val jdm = ctx.getJobDetail.getJobDataMap() // Really?
 		val msg = jdm.get("message")
 		val actor = jdm.get("actor").asInstanceOf[ActorRef]
