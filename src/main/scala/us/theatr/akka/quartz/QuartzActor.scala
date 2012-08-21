@@ -24,16 +24,42 @@ import org.quartz._
 import utils.Key
 
 
+/**
+ * Message to add a cron scheduler. Send this to the QuartzActor
+ * @param to The ActorRef describing the desination actor
+ * @param cron A string Cron expression
+ * @param message Any message
+ * @param reply Whether to give a reply to this message indicating success or failure (optional)
+ */
 case class AddCronSchedule(to: ActorRef, cron: String, message: Any, reply: Boolean = false)
 
 trait AddCronScheduleResult
 
+/**
+ * Indicates success for a scheduler add action.
+ * @param cancel The cancellable allows the job to be removed later. Can be invoked directly -
+ *               canceling will send an internal RemoveJob message
+ */
 case class AddCronScheduleSuccess(cancel: Cancellable) extends AddCronScheduleResult
 
+/**
+ * Indicates the job couldn't be added. Usually due to a bad cron expression.
+ * @param reason The reason
+ */
 case class AddCronScheduleFailure(reason: Throwable) extends AddCronScheduleResult
 
+/**
+ * Remove a job based upon the Cancellable returned from a success call.
+ * @param cancel
+ */
 case class RemoveJob(cancel: Cancellable)
 
+
+/**
+ * Internal class to make Quartz work.
+ * This should be in QuartzActor, but for some reason Quartz
+ * ends up with a construction error when it is.
+ */
 private class QuartzIsNotScalaExecutor() extends Job {
 	def execute(ctx: JobExecutionContext) {
 		val jdm = ctx.getJobDetail.getJobDataMap() // Really?
@@ -43,6 +69,10 @@ private class QuartzIsNotScalaExecutor() extends Job {
 	}
 }
 
+/**
+ * The base quartz scheduling actor. Handles a single quartz scheduler
+ * and processes Add and Remove messages.
+ */
 class QuartzActor extends Actor {
 	val log = Logging(context.system, this)
 
@@ -80,6 +110,7 @@ class QuartzActor extends Actor {
 		scheduler.shutdown()
 	}
 
+	// Largely imperative glue code to make quartz work :)
 	def receive = {
 		case RemoveJob(cancel) => cancel match {
 			case cs: CancelSchedule => scheduler.deleteJob(cs.job); cs.cancelled = true
@@ -87,9 +118,11 @@ class QuartzActor extends Actor {
 		}
 		case AddCronSchedule(to, cron, message, reply) =>
 			// Try to derive a unique name for this job
+			// Using hashcode is odd, suggestions for something better?
 			val jobkey = new JobKey(Key.DEFAULT_GROUP, "%X".format((to.toString() + message.toString + cron + "job").hashCode))
+			// Perhaps just a string is better :)
 			val trigkey = new TriggerKey(Key.DEFAULT_GROUP, to.toString() + message.toString + cron + "trigger")
-
+			// We use JobDataMaps to pass data to the newly created job runner class
 			val jd = org.quartz.JobBuilder.newJob(classOf[QuartzIsNotScalaExecutor])
 			val jdm = new JobDataMap()
 			jdm.put("message", message)
@@ -111,7 +144,7 @@ class QuartzActor extends Actor {
 						context.sender ! AddCronScheduleFailure(e)
 
 			}
-
+		// I'm relatively unhappy with the two message replies, but it works
 
 		case _ => //
 	}
