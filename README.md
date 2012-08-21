@@ -30,6 +30,8 @@ Send it add messages:
 
 Now Message() will be delivered to destinationActorRef every 5 seconds.
 
+For more information, please see the unit test or consult the JavaDoc/ScalaDoc.
+
 ## Observations ##
 
 Quartz really isn't that fantastic - a ton of cruft, non-sensical bugs, and "enterprise" anti-patterns.
