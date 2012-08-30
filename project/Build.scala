@@ -12,6 +12,7 @@ object Build extends sbt.Build {
 		crossScalaVersions := Seq("2.9.1", "2.9.2"),
 		scalacOptions := Seq("-deprecation", "-encoding", "utf8"),
 		resolvers     ++= Dependencies.resolutionRepos,
+		publishTo := Some(Resolver.file("file", new File("../../ivy-repo/"))),
 		libraryDependencies ++=
 			compile(akkaActor, quartz) ++
 				test(specs2, akkaTestkit) ++

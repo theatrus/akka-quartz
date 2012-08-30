@@ -16,6 +16,10 @@ Works with Akka 2.x.
 
 ## Using ##
 
+Include the following repository to you Ivy/Maven/SBT file:
+
+    http://repo.theatr.us
+
 Include the following dependency in your `build.sbt`:
 
     "us.theatr" % "akka-quartz" % "0.1-SNAPSHOT"
