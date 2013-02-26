@@ -14,7 +14,7 @@ object Dependencies {
 	def container (deps: ModuleID*): Seq[ModuleID] = deps map (_ % "container")
 
 	object V {
-		val akka     = "2.0.2"
+		val akka     = "2.0.5"
 		val quartz 	 = "2.1.5"
 	}
 
