@@ -1,16 +1,14 @@
 package us.theatr.akka.quartz
 
 import org.specs2.mutable._
-import akka.testkit.{ImplicitSender, TestKit, TestActorRef}
+import akka.testkit.TestActorRef
 import akka.actor.{Props, ActorSystem, Actor}
-import akka.util.{Duration, Timeout}
+import akka.util.Timeout
 import akka.pattern.ask
-import akka.dispatch.{Future, Await}
-
+import scala.concurrent.duration.Duration
+import scala.util.{Success}
 
 class QuartzActor$Test extends Specification  {
-
-
 
 	object SpecActors {
 		case class Tickle()
@@ -25,13 +23,6 @@ class QuartzActor$Test extends Specification  {
 		}
 	}
 
-	"Basic logic" should {
-		"has equals" in {
-			val t = 1
-			1 must beEqualTo(t)
-		}
-	}
-
 	"Basic single actors should" should {
 		implicit val system = ActorSystem("GAT")
 		val ar = TestActorRef(new QuartzActor)
@@ -41,21 +32,21 @@ class QuartzActor$Test extends Specification  {
 
 			val f = (ar ? AddCronSchedule(recv, "0/5 * * * * ?", SpecActors.Tickle(), true))
 			f.value.get must beLike {
-				case Right(t : AddCronScheduleResult) => ok
+				case Success(t : AddCronScheduleResult) => ok
 			}
 		}
 		"deliver messages on time" in {
 
 			Thread.sleep(10000)
 			(recv ? SpecActors.GetTickle()).value.get must beLike {
-				case Right(SpecActors.Tickle()) => ok
+				case Success(SpecActors.Tickle()) => ok
 			}
 		}
 
 		"add then cancel messages" in {
 			val d = ar ? AddCronSchedule(recv, "4 4 * * * ?", SpecActors.Tickle(), true)
 			val cancel = d.value.get match {
-				case Right(AddCronScheduleSuccess(cancel)) => cancel
+				case Success(AddCronScheduleSuccess(cancel)) => cancel
 			}
 			cancel.cancel()
 			Thread.sleep(100)
@@ -64,7 +55,7 @@ class QuartzActor$Test extends Specification  {
 
 		"fail with invalid cron expressions" in {
 			(ar ? AddCronSchedule(recv, "clearly invalid", SpecActors.Tickle(), true)).value.get must beLike {
-				case Right(AddCronScheduleFailure(e)) => ok
+				case Success(AddCronScheduleFailure(e)) => ok
 			}
 		}
 	}
