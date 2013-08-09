@@ -37,6 +37,22 @@ Send it add messages:
 
 Now Message() will be delivered to destinationActorRef every 5 seconds.
 
+The Spigot can turn the cron job on or off. All you need to do is to implement
+
+    trait Spigot {
+      def open: Boolean
+    }
+
+And add it to the ```AddCronSchedule```:
+
+    val leaderSpigot = new Spigot {
+      def open = zookeeperClient.isLeader()
+    }
+    quartzActor ! AddCronSchedule(destinationActorRef, "0/5 * * * * ?", Message(), false, leaderSpigot)
+
+Now Message() will be delivered to destinationActorRef every 5 seconds only if zookeeperClient.isLeader() returns true.
+This is useful if your service runs in a cluster and you want a single (or some) of the instances in the clusters to run the cron job.
+
 For more information, please see the unit test or consult the JavaDoc/ScalaDoc.
 
 For more documentation about quartz scheduler see
