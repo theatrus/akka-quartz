@@ -28,7 +28,7 @@ Include the following dependency in your `build.sbt`:
 
 Create a QuartzActor:
 
-    importus.theatr.akka.quartz._
+    import us.theatr.akka.quartz._
     val quartzActor = system.actorOf(Props[QuartzActor])
 
 Send it add messages:
