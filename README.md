@@ -39,6 +39,9 @@ Now Message() will be delivered to destinationActorRef every 5 seconds.
 
 For more information, please see the unit test or consult the JavaDoc/ScalaDoc.
 
+For more documentation about quartz scheduler see
+http://quartz-scheduler.org/api/2.0.0/org/quartz/CronTrigger.html
+
 ## Observations ##
 
 Quartz really isn't that fantastic - a ton of cruft, non-sensical bugs, and "enterprise" anti-patterns.
