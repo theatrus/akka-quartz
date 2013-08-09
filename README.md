@@ -18,7 +18,7 @@ Works with Akka 2.1.x on Scala 2.10.x
 
 Include the following repository to you Ivy/Maven/SBT file:
 
-    http://repo.theatr.us
+    "FortyTwo Towel Repository" at "http://repo.42go.com:4242/fortytwo/content/repositories/towel"
 
 Include the following dependency in your `build.sbt`:
 
@@ -28,6 +28,7 @@ Include the following dependency in your `build.sbt`:
 
 Create a QuartzActor:
 
+    importus.theatr.akka.quartz._
     val quartzActor = system.actorOf(Props[QuartzActor])
 
 Send it add messages:
