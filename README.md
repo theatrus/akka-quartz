@@ -22,7 +22,7 @@ Include the following repository to you Ivy/Maven/SBT file:
 
 Include the following dependency in your `build.sbt`:
 
-    "us.theatr" % "akka-quartz" %% "0.2.0"
+    "us.theatr" % "akka-quartz" %% "0.2.0_42.1"
 
 (along with any needed Akka dependencies - not included by default)
 
