@@ -7,12 +7,12 @@ object Build extends sbt.Build {
 	lazy val myProject = Project("akka-quartz", file("."))
 		.settings(
 		organization  := "us.theatr",
-		version       := "0.2.0_42.1",
-		scalaVersion  := "2.10.1",
-		crossScalaVersions := Seq("2.10.1"),
+		version       := "0.3.0-SNAPSHOT",
+		scalaVersion  := "2.10.2",
+		crossScalaVersions := Seq("2.10.2"),
 		scalacOptions := Seq("-deprecation", "-encoding", "utf8"),
 		resolvers     ++= Dependencies.resolutionRepos,
-		publishTo := Some(Resolver.file("file", new File("../../sonatype-work/nexus/storage/towel"))),
+		publishTo := Some(Resolver.file("file", new File("../../ivy-repo"))),
 		libraryDependencies ++=
 		  provided(akkaActor, slf4j, logback) ++ compile(quartz) ++
 		  test(specs2, akkaTestkit)

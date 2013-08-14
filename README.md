@@ -18,11 +18,11 @@ Works with Akka 2.1.x on Scala 2.10.x
 
 Include the following repository to you Ivy/Maven/SBT file:
 
-    "FortyTwo Towel Repository" at "http://repo.42go.com:4242/fortytwo/content/repositories/towel"
+    "theatr.us" at "http://repo.theatr.us"
 
 Include the following dependency in your `build.sbt`:
 
-    "us.theatr" % "akka-quartz" %% "0.2.0_42.1"
+    "us.theatr" % "akka-quartz" %% "0.2.0"
 
 (along with any needed Akka dependencies - not included by default)
 
