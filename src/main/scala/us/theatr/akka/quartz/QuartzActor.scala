@@ -31,7 +31,7 @@ import utils.Key
  * @param message Any message
  * @param reply Whether to give a reply to this message indicating success or failure (optional)
  */
-case class AddCronSchedule(to: ActorRef, cron: String, message: Any, reply: Boolean = false)
+case class AddCronSchedule(to: ActorRef, cron: String, message: Any, reply: Boolean = false, spigot: Spigot = OpenSpigot)
 
 trait AddCronScheduleResult
 
@@ -63,10 +63,21 @@ case class RemoveJob(cancel: Cancellable)
 private class QuartzIsNotScalaExecutor() extends Job {
 	def execute(ctx: JobExecutionContext) {
 		val jdm = ctx.getJobDetail.getJobDataMap() // Really?
-		val msg = jdm.get("message")
-		val actor = jdm.get("actor").asInstanceOf[ActorRef]
-		actor ! msg
+		val spigot = jdm.get("spigot").asInstanceOf[Spigot]
+		if (spigot.open) {
+			val msg = jdm.get("message")
+			val actor = jdm.get("actor").asInstanceOf[ActorRef]
+			actor ! msg
+		}
 	}
+}
+
+trait Spigot {
+	def open: Boolean
+}
+
+object OpenSpigot extends Spigot {
+  val open = true
 }
 
 /**
@@ -116,7 +127,7 @@ class QuartzActor extends Actor {
 			case cs: CancelSchedule => scheduler.deleteJob(cs.job); cs.cancelled = true
 			case _ => log.error("Incorrect cancelable sent")
 		}
-		case AddCronSchedule(to, cron, message, reply) =>
+		case AddCronSchedule(to, cron, message, reply, spigot) =>
 			// Try to derive a unique name for this job
 			// Using hashcode is odd, suggestions for something better?
 			val jobkey = new JobKey(Key.DEFAULT_GROUP, "%X".format((to.toString() + message.toString + cron + "job").hashCode))
@@ -125,6 +136,7 @@ class QuartzActor extends Actor {
 			// We use JobDataMaps to pass data to the newly created job runner class
 			val jd = org.quartz.JobBuilder.newJob(classOf[QuartzIsNotScalaExecutor])
 			val jdm = new JobDataMap()
+			jdm.put("spigot", spigot)
 			jdm.put("message", message)
 			jdm.put("actor", to)
 			val job = jd.usingJobData(jdm).withIdentity(jobkey).build()
