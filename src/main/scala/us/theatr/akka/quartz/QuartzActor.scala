@@ -132,9 +132,9 @@ class QuartzActor extends Actor {
 		case AddCronSchedule(to, cron, message, reply, spigot) =>
 			// Try to derive a unique name for this job
 			// Using hashcode is odd, suggestions for something better?
-			val jobkey = new JobKey(Key.DEFAULT_GROUP, "%X".format((to.toString() + message.toString + cron + "job").hashCode))
+			val jobkey = new JobKey("%X".format((to.toString() + message.toString + cron + "job").hashCode))
 			// Perhaps just a string is better :)
-			val trigkey = new TriggerKey(Key.DEFAULT_GROUP, to.toString() + message.toString + cron + "trigger")
+			val trigkey = new TriggerKey(to.toString() + message.toString + cron + "trigger")
 			// We use JobDataMaps to pass data to the newly created job runner class
 			val jd = org.quartz.JobBuilder.newJob(classOf[QuartzIsNotScalaExecutor])
 			val jdm = new JobDataMap()
