@@ -14,7 +14,7 @@ The Akka scheduler is limited, and using Apache Camel to run timers is silly.
 
 Works with Akka 2.1.x on Scala 2.10.x
 
-(0.3.0-SNAPSHOT is compatible with Akka 2.2)
+(0.3.0-SNAPSHOT is compatible with Akka 2.3.x on Scala 2.11.x)
 
 ## Using ##
 
