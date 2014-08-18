@@ -3,6 +3,9 @@ akka-quartz
 
 The Akka scheduler is limited, and using Apache Camel to run timers is silly.
 
+[![Build Status](https://travis-ci.org/theatrus/akka-quartz.svg?branch=master)](https://travis-ci.org/theatrus/akka-quartz)
+
+
 ## Features ##
 
 * Quartz scheduler
