@@ -15,7 +15,7 @@ The Akka scheduler is limited, and using Apache Camel to run timers is silly.
 
 ### Versions ###
 
-Works with Akka 2.1.x on Scala 2.10.x / 2.11.x
+Works with Akka 2.1.x+ on Scala 2.10.x / 2.11.x
 
 ## Using ##
 
