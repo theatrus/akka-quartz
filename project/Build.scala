@@ -7,7 +7,7 @@ object Build extends sbt.Build {
 	lazy val myProject = Project("akka-quartz", file("."))
 		.settings(
 		organization  := "us.theatr",
-		version       := "0.3.0-SNAPSHOT",
+		version       := "0.4.0-SNAPSHOT",
 		scalaVersion  := "2.11.2",
 		crossScalaVersions := Seq("2.10.4", "2.11.2"),
 		scalacOptions := Seq("-deprecation", "-encoding", "utf8"),
