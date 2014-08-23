@@ -15,9 +15,7 @@ The Akka scheduler is limited, and using Apache Camel to run timers is silly.
 
 ### Versions ###
 
-Works with Akka 2.1.x on Scala 2.10.x
-
-(0.3.0-SNAPSHOT is compatible with Akka 2.3.x on Scala 2.11.x)
+Works with Akka 2.1.x on Scala 2.10.x / 2.11.x
 
 ## Using ##
 
@@ -27,7 +25,7 @@ Include the following repository to you Ivy/Maven/SBT file:
 
 Include the following dependency in your `build.sbt`:
 
-    "us.theatr" %% "akka-quartz" % "0.2.0"
+    "us.theatr" %% "akka-quartz" % "0.3.0"
 
 (along with any needed Akka dependencies - not included by default)
 
