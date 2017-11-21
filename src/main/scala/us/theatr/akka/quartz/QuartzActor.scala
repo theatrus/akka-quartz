@@ -153,7 +153,7 @@ class QuartzActor extends Actor {
 
 			} catch { // Quartz will drop a throwable if you give it an invalid cron expression - pass that info on
 				case e: Throwable =>
-					log.error("Quartz failed to add a task: ", e)
+					log.error("Quartz failed to add a task: {}", e)
 					if (reply)
 						context.sender ! AddCronScheduleFailure(e)
 
