@@ -16,12 +16,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import akka.actor.{Cancellable, ActorRef, Actor}
+import java.util.{Properties, TimeZone}
+
+import akka.actor.{Actor, ActorRef, Cancellable}
 import akka.event.Logging
-import org.quartz.impl.StdSchedulerFactory
-import java.util.Properties
 import org.quartz._
-import utils.Key
+import org.quartz.impl.StdSchedulerFactory
 
 
 /**
@@ -84,7 +84,7 @@ object OpenSpigot extends Spigot {
  * The base quartz scheduling actor. Handles a single quartz scheduler
  * and processes Add and Remove messages.
  */
-class QuartzActor extends Actor {
+class QuartzActor(timeZone: TimeZone = TimeZone.getDefault) extends Actor {
 	val log = Logging(context.system, this)
 
 	// Create a sane default quartz scheduler
@@ -146,7 +146,8 @@ class QuartzActor extends Actor {
 			try {
 				scheduler.scheduleJob(job, org.quartz.TriggerBuilder.newTrigger().startNow()
 					.withIdentity(trigkey).forJob(job)
-					.withSchedule(org.quartz.CronScheduleBuilder.cronSchedule(cron)).build())
+					.withSchedule(CronScheduleBuilder.cronSchedule(cron).inTimeZone(timeZone))
+					.build())
 
 				if (reply)
 					context.sender ! AddCronScheduleSuccess(new CancelSchedule(jobkey, trigkey))
